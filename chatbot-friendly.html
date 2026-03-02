@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot - Friendly Mode</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.ai {
+            text-align: left;
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message-content {
+            display: inline-block;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .message.ai .message-content {
+            background: white;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            opacity: 0.7;
+        }
+
+        .input-section {
+            padding: 20px;
+            background: white;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .options-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option-button {
+            padding: 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            text-align: left;
+            color: #333;
+        }
+
+        .option-button:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+
+        .option-button:active {
+            transform: translateY(0);
+        }
+
+        .next-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .next-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .next-button:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI Chatbot</h1>
+            <p>Friendly Mode</p>
+        </div>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="message ai">
+                <div class="label">AI</div>
+                <div class="message-content">Hi there! I'm glad you're here again.</div>
+            </div>
+            <div class="message ai">
+                <div class="label">AI</div>
+                <div class="message-content">Your options are simple and easy—just pick one and we'll chat!</div>
+            </div>
+        </div>
+
+        <div class="input-section" id="inputSection">
+            <div class="options-label" id="optionsLabel">You may say one of the following:</div>
+            <div class="options-grid" id="optionsGrid">
+                <button class="option-button" data-key="WHAT IS THE WEATHER LIKE TODAY" onclick="sendMessage('WHAT IS THE WEATHER LIKE TODAY')">
+                    What is the weather like today
+                </button>
+                <button class="option-button" data-key="HOW ARE YOU" onclick="sendMessage('HOW ARE YOU')">
+                    How are you
+                </button>
+                <button class="option-button" data-key="GIVE ME AN UPDATE ON THE NEWS" onclick="sendMessage('GIVE ME AN UPDATE ON THE NEWS')">
+                    Give me an update on the news
+                </button>
+                <button class="option-button" data-key="SOLVE THIS EQUATION" onclick="sendMessage('SOLVE THIS EQUATION')">
+                    Solve this equation
+                </button>
+            </div>
+            <button class="next-button" id="nextButton" onclick="window.location.href='chatbot-teen.html'">
+                Continue to Next Chatbot
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let askedQuestions = new Set();
+        const totalQuestions = 4;
+
+        const responses = {
+            "WHAT IS THE WEATHER LIKE TODAY": [
+                "Checking the weather vibes!",
+                "Today's weather is pretty calm and pleasant—nothing wild, just a nice day to enjoy."
+            ],
+            "HOW ARE YOU": [
+                "Thanks for asking! I'm doing great and ready to help however I can.",
+                "I hope you're having a good day too!"
+            ],
+            "GIVE ME AN UPDATE ON THE NEWS": [
+                "Here's a friendly snapshot of what's happening in the world.",
+                "The news is full of interesting stories today—if you'd like, I can summarize something specific for you!"
+            ],
+            "SOLVE THIS EQUATION": [
+                "Math time! I love a good equation.",
+                "Go ahead and tell me the equation, and I'll solve it for you."
+            ]
+        };
+
+        function addMessage(text, isUser) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+            
+            const label = document.createElement('div');
+            label.className = 'label';
+            label.textContent = isUser ? 'You' : 'AI';
+            
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.textContent = text;
+            
+            messageDiv.appendChild(label);
+            messageDiv.appendChild(content);
+            chatContainer.appendChild(messageDiv);
+            
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function sendMessage(message) {
+            // Mark this question as asked
+            askedQuestions.add(message);
+            
+            // Remove the button for this question
+            const buttons = document.querySelectorAll('.option-button');
+            buttons.forEach(button => {
+                if (button.getAttribute('data-key') === message) {
+                    button.style.display = 'none';
+                }
+            });
+            
+            addMessage(message.toLowerCase().replace(/\b\w/g, l => l.toUpperCase()), true);
+            
+            const upperMessage = message.toUpperCase();
+            
+            setTimeout(() => {
+                responses[upperMessage].forEach((response, index) => {
+                    setTimeout(() => {
+                        addMessage(response, false);
+                        
+                        // Check if all questions have been asked after the last response
+                        if (index === responses[upperMessage].length - 1) {
+                            checkIfComplete();
+                        }
+                    }, index * 800);
+                });
+            }, 500);
+        }
+
+        function checkIfComplete() {
+            if (askedQuestions.size === totalQuestions) {
+                setTimeout(() => {
+                    addMessage("Thanks so much for chatting with me! We've covered all the topics.", false);
+                    setTimeout(() => {
+                        addMessage("Feel free to come back anytime. Have a great day!", false);
+                        
+                        // Hide the options and show the next button
+                        setTimeout(() => {
+                            document.getElementById('optionsLabel').style.display = 'none';
+                            document.getElementById('optionsGrid').style.display = 'none';
+                            document.getElementById('nextButton').style.display = 'block';
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
